@@ -1,17 +1,19 @@
-import yaml
 import logging
 
+import yaml
+
 from power_consumption.data_processor import DataProcessor
+
 # from power_consumption.price_model import PriceModel
 # from power_consumption.utils import visualize_results, plot_feature_importance
 
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
 # Load configuration
-with open('project_config.yml', 'r') as file:
+with open("project_config.yml", "r") as file:
     config = yaml.safe_load(file)
 
 print("Configuration loaded:")
@@ -19,7 +21,7 @@ print(yaml.dump(config, default_flow_style=False))
 
 
 # Initialize DataProcessor
-data_processor = DataProcessor('sandbox.sb_adan.tetuan_city_power_consumption', config)
+data_processor = DataProcessor("sandbox.sb_adan.tetuan_city_power_consumption", config)
 logger.info("DataProcessor initialized.")
 
 # Preprocess the data
@@ -28,7 +30,7 @@ logger.info("Data preprocessed.")
 
 # Split the data
 X_train, X_test, y_train, y_test = data_processor.split_data()
-logger.info(f"Data split into training and test sets.")
+logger.info("Data split into training and test sets.")
 logger.debug(f"Training set shape: {X_train.shape}, Test set shape: {X_test.shape}")
 
 print("Training set shape:", X_train.shape)
@@ -53,4 +55,3 @@ print("Test set shape:", X_test.shape)
 # feature_importance, feature_names = model.get_feature_importance()
 # plot_feature_importance(feature_importance, feature_names)
 # logger.info("Feature importance plot generated.")
-
