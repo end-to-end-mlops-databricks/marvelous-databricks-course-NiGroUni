@@ -1,5 +1,5 @@
 [project]
-name = "mlops-with-databricks"
+name = "power_consumption"
 version = "0.0.1"
 description = "MLOps with Databricks"
 readme = "README.md"

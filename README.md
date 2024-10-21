@@ -19,8 +19,18 @@ In our examples, we use UV. Check out the documentation on how to install it: ht
 To create a new environment and create a lockfile, run:
 
 ```
-uv venv -p 3.11 venv
-source venv/Scripts/activate
+uv venv -p 3.11.9 venv
+venv\Scripts\activate
 uv pip install -r pyproject.toml --all-extras
 uv lock
+```
+
+Install src package with `uv pip install -e .`
+
+Example of uploading package to the volume:
+
+```
+databricks auth login --host HOST
+uv build
+databricks fs cp dist\power_consumption-0.0.1-py3-none-any.whl dbfs:/Volumes/main/default/file_exchange/nico
 ```

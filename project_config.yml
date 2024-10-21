@@ -1,0 +1,14 @@
+catalog_name: marvelous_mlops
+schema_name: house_prices
+
+parameters:
+  learning_rate: 0.01
+  n_estimators: 1000
+  max_depth: 6
+
+num_features:
+  - Temperature
+  - Humidity
+  - Wind Speed
+
+target: Zone 1 Power Consumption
