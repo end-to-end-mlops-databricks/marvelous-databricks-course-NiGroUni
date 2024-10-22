@@ -34,3 +34,8 @@ databricks auth login --host HOST
 uv build
 databricks fs cp dist\power_consumption-0.0.1-py3-none-any.whl dbfs:/Volumes/main/default/file_exchange/nico
 ```
+
+`uv pip install -e .`
+
+`pip install dbfs:/Volumes/main/default/file_exchange/nico/power_consumption-0.0.1-py3-none-any.whl`
+
