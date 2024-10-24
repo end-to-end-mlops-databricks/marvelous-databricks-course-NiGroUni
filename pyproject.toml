@@ -1,9 +1,9 @@
 [project]
-name = "mlops-with-databricks"
+name = "power_consumption"
 version = "0.0.1"
 description = "MLOps with Databricks"
 readme = "README.md"
-requires-python = "==3.11"
+requires-python = ">=3.11"
 dependencies = ["lightgbm>=4.5.0, <5",
                 "scikit-learn>=1.5.1, <2",
                 "cloudpickle>=3.0.0, <4",
@@ -20,7 +20,8 @@ dependencies = ["lightgbm>=4.5.0, <5",
 dev = ["databricks-connect>=15.4.1, <16",
        "databricks-sdk>=0.32.0, <0.33",
        "ipykernel>=6.29.5, <7",
-       "pip>=24.2"]
+       "pip>=24.2",
+       "pre-commit"]
 
 [tool.ruff]
 line-length = 120
