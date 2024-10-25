@@ -9,8 +9,6 @@ import json
 from mlflow import MlflowClient
 from mlflow.utils.environment import _mlflow_conda_env
 from power_consumption.utils import adjust_predictions
-
-from pyspark.sql import SparkSession
 from sklearn.pipeline import Pipeline
 from lightgbm import LGBMRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
@@ -41,7 +39,7 @@ spark = SparkSession.builder.getOrCreate()
 # COMMAND ----------
 # Load training and testing sets from Databricks tables
 train_set_spark = spark.table(f"{catalog_name}.{schema_name}.train_set_nico")
-train_set = spark.table(f"{catalog_name}.{schema_name}.train_set_nico").toPandas()
+train_set = train_set_spark.toPandas()
 test_set = spark.table(f"{catalog_name}.{schema_name}.test_set_nico").toPandas()
 
 X_train = train_set[num_features]
@@ -120,8 +118,8 @@ class PowerConsumptionModelWrapper(mlflow.pyfunc.PythonModel):
 
 # COMMAND ----------
 
-wrapped_model = PowerConsumptionModelWrapper(PowerConsumptionModelWrapper) # we pass the loaded model to the wrapper
-
+wrapped_model = PowerConsumptionModelWrapper(pipeline) # we pass the loaded model to the wrapper
+# TODO: add code again
 
 
 # COMMAND ----------
