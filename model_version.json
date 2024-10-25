@@ -1,0 +1,18 @@
+{
+    "_name": "sandbox.sb_adan.power_consumption_model_pyfunc",
+    "_version": "2",
+    "_creation_time": 1729865386204,
+    "_last_updated_timestamp": 1729865387313,
+    "_description": "",
+    "_user_id": "nico.grosskreuz@unicef.de",
+    "_current_stage": null,
+    "_source": "dbfs:/databricks/mlflow-tracking/3164043204193380/5db722f4413c4561a613ac03f8d92f59/artifacts/pyfunc-power-consumption-model",
+    "_run_id": "5db722f4413c4561a613ac03f8d92f59",
+    "_run_link": null,
+    "_status": "READY",
+    "_status_message": "",
+    "_tags": {
+        "git_sha": "bla"
+    },
+    "_aliases": []
+}

@@ -25,7 +25,9 @@ uv pip install -r pyproject.toml --all-extras
 uv lock
 ```
 
-Install src package with `uv pip install -e .`
+Install src package locally with `uv pip install -e .`
+
+Install src package on cluster in notebook with `pip install dbfs:/Volumes/main/default/file_exchange/nico/power_consumption-0.0.1-py3-none-any.whl`
 
 Example of uploading package to the volume:
 
@@ -34,8 +36,3 @@ databricks auth login --host HOST
 uv build
 databricks fs cp dist\power_consumption-0.0.1-py3-none-any.whl dbfs:/Volumes/main/default/file_exchange/nico
 ```
-
-`uv pip install -e .`
-
-`pip install dbfs:/Volumes/main/default/file_exchange/nico/power_consumption-0.0.1-py3-none-any.whl`
-
