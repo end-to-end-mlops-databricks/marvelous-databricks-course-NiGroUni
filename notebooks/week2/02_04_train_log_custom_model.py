@@ -1,19 +1,17 @@
 # Databricks notebook source
+import json
+from lightgbm import LGBMRegressor
 import mlflow
+from mlflow import MlflowClient
+from mlflow.models import infer_signature
 import numpy as np
 import pandas as pd
 from pyspark.sql import SparkSession
-from mlflow.models import infer_signature
-from power_consumption.config import ProjectConfig
-import json
-from mlflow import MlflowClient
-from mlflow.utils.environment import _mlflow_conda_env
-from power_consumption.utils import adjust_predictions
 from sklearn.pipeline import Pipeline
-from lightgbm import LGBMRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
-import mlflow
-from mlflow.models import infer_signature
+
+from power_consumption.config import ProjectConfig
+from power_consumption.utils import adjust_predictions
 
 mlflow.set_registry_uri("databricks-uc")
 mlflow.set_tracking_uri("databricks")
@@ -119,8 +117,6 @@ class PowerConsumptionModelWrapper(mlflow.pyfunc.PythonModel):
 # COMMAND ----------
 
 wrapped_model = PowerConsumptionModelWrapper(pipeline) # we pass the loaded model to the wrapper
-# TODO: add code again
-
 
 # COMMAND ----------
 

@@ -1,7 +1,8 @@
 # Databricks notebook source
+from pyspark.sql import SparkSession
+
 from power_consumption.data_processor import DataProcessor
 from power_consumption.config import ProjectConfig
-from pyspark.sql import SparkSession
 
 spark = SparkSession.builder.getOrCreate()
 
