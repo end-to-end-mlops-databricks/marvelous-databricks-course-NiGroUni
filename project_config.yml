@@ -1,5 +1,5 @@
-catalog_name: marvelous_mlops
-schema_name: house_prices
+catalog_name: sandbox
+schema_name: sb_adan
 
 parameters:
   learning_rate: 0.01
@@ -9,6 +9,10 @@ parameters:
 num_features:
   - Temperature
   - Humidity
-  - Wind Speed
+  - Wind_Speed
 
-target: Zone 1 Power Consumption
+target: Zone_1_Power_Consumption
+
+id_col: DateTime
+
+mlflow_experiment_name: /Shared/mlops_course_nico
