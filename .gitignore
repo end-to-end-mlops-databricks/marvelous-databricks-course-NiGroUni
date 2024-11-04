@@ -99,4 +99,6 @@ dmypy.json
 
 .databricks
 notebooks/week2/mlruns/
-mlruns/
+mlruns/*
+notebooks/*.json
+model_version.json

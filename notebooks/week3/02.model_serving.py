@@ -11,6 +11,7 @@ import time
 import requests
 import random
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import os
 
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.service.serving import (
@@ -19,38 +20,45 @@ from databricks.sdk.service.serving import (
     TrafficConfig,
     Route,
 )
+from databricks.sdk.runtime import dbutils
 
-from house_price.config import ProjectConfig
+from power_consumption.config import ProjectConfig
 from pyspark.sql import SparkSession
+# COMMAND ----------
 
 workspace = WorkspaceClient()
 spark = SparkSession.builder.getOrCreate()
 
-config = ProjectConfig.from_yaml(config_path="../../project_config.yml")
+try:
+    config = ProjectConfig.from_yaml(config_path="project_config.yml")
+except Exception:
+    config = ProjectConfig.from_yaml(config_path="../../project_config.yml")
 
 catalog_name = config.catalog_name
 schema_name = config.schema_name
 
-train_set = spark.table(f"{catalog_name}.{schema_name}.train_set").toPandas()
+train_set = spark.table(f"{catalog_name}.{schema_name}.train_set_nico").toPandas()
+
+# COMMAND ----------
 
 workspace.serving_endpoints.create(
-    name="house-prices-model-serving",
+    name="power-consumption-model-serving",
     config=EndpointCoreConfigInput(
         served_entities=[
             ServedEntityInput(
-                entity_name=f"{catalog_name}.{schema_name}.house_prices_model",
+                entity_name=f"{catalog_name}.{schema_name}.power_consumption_model_pyfunc",
                 scale_to_zero_enabled=True,
                 workload_size="Small",
-                entity_version=2,
+                entity_version=6,
             )
         ],
     # Optional if only 1 entity is served
-    traffic_config=TrafficConfig(
-        routes=[
-            Route(served_model_name="house_prices_model-2",
-                  traffic_percentage=100)
-        ]
-        ),
+    # traffic_config=TrafficConfig(
+    #     routes=[
+    #         Route(served_model_name="power_consumptions_model-2",
+    #               traffic_percentage=100)
+    #     ]
+    #     ),
     ),
 )
 
@@ -58,11 +66,15 @@ workspace.serving_endpoints.create(
 
 # MAGIC %md
 # MAGIC ## Call the endpoint
-
 # COMMAND ----------
 
-token = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiToken().get()
 host = spark.conf.get("spark.databricks.workspaceUrl")
+try:
+    # notebook way
+    token = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiToken().get()
+except AttributeError:
+    # local/databricks connect way
+    token = os.environ.get("DATABRICKS_TOKEN")
 
 # COMMAND ----------
 
@@ -72,37 +84,13 @@ host = spark.conf.get("spark.databricks.workspaceUrl")
 # COMMAND ----------
 
 required_columns = [
-    "LotFrontage",
-    "LotArea",
-    "OverallQual",
-    "OverallCond",
-    "YearBuilt",
-    "YearRemodAdd",
-    "MasVnrArea",
-    "TotalBsmtSF",
-    "GrLivArea",
-    "GarageCars",
-    "MSZoning",
-    "Street",
-    "Alley",
-    "LotShape",
-    "LandContour",
-    "Neighborhood",
-    "Condition1",
-    "BldgType",
-    "HouseStyle",
-    "RoofStyle",
-    "Exterior1st",
-    "Exterior2nd",
-    "MasVnrType",
-    "Foundation",
-    "Heating",
-    "CentralAir",
-    "SaleType",
-    "SaleCondition",
+    "Temperature",
+    "Humidity",
+    "Wind_Speed",
 ]
 
 sampled_records = train_set[required_columns].sample(n=1000, replace=True).to_dict(orient="records")
+# sampled_records = train_set.sample(n=1000, replace=True).to_dict(orient="records")
 dataframe_records = [[record] for record in sampled_records]
 
 # COMMAND ----------
@@ -110,26 +98,16 @@ dataframe_records = [[record] for record in sampled_records]
 """
 Each body should be list of json with columns
 
-[{'LotFrontage': 78.0,
-  'LotArea': 9317,
-  'OverallQual': 6,
-  'OverallCond': 5,
-  'YearBuilt': 2006,
-  'Exterior1st': 'VinylSd',
-  'Exterior2nd': 'VinylSd',
-  'MasVnrType': 'None',
-  'Foundation': 'PConc',
-  'Heating': 'GasA',
-  'CentralAir': 'Y',
-  'SaleType': 'WD',
-  'SaleCondition': 'Normal'}]
+[{'Temperature': 6.559,
+  'Humidity': 73.8,
+  'Wind_Speed': '0.083'}]
 """
 
 # COMMAND ----------
 start_time = time.time()
 
 model_serving_endpoint = (
-    f"https://{host}/serving-endpoints/house-prices-model-serving/invocations"
+    f"https://{host}/serving-endpoints/power-consumption-model-serving/invocations"
 )
 response = requests.post(
     f"{model_serving_endpoint}",
@@ -153,7 +131,7 @@ print("Execution time:", execution_time, "seconds")
 
 # Initialize variables
 model_serving_endpoint = (
-    f"https://{host}/serving-endpoints/house-prices-model-serving/invocations"
+    f"https://{host}/serving-endpoints/power-consumption-model-serving/invocations"
 )
 
 headers = {"Authorization": f"Bearer {token}"}

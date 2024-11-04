@@ -33,7 +33,7 @@ Install src package on cluster in notebook with `pip install dbfs:/Volumes/main/
 Example of uploading package to the volume:
 
 ```
-databricks auth login --host HOST
+databricks auth login -p DEFAULT
 uv build
 databricks fs cp dist\power_consumption-0.0.1-py3-none-any.whl dbfs:/Volumes/main/default/file_exchange/nico --overwrite
 ```
