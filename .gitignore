@@ -98,3 +98,4 @@ dmypy.json
 /uv.lock
 
 .databricks
+notebooks/week2/mlruns
