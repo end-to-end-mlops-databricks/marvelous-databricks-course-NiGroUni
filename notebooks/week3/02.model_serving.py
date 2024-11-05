@@ -100,7 +100,7 @@ Each body should be list of json with columns
 
 [{'Temperature': 6.559,
   'Humidity': 73.8,
-  'Wind_Speed': '0.083'}]
+  'Wind_Speed': 0.083}]
 """
 
 # COMMAND ----------
