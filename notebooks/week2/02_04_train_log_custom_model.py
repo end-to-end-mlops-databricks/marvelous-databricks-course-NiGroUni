@@ -4,6 +4,7 @@ from lightgbm import LGBMRegressor
 import mlflow
 from mlflow import MlflowClient
 from mlflow.models import infer_signature
+from mlflow.utils.environment import _mlflow_conda_env
 import numpy as np
 import pandas as pd
 from pyspark.sql import SparkSession
@@ -117,6 +118,10 @@ class PowerConsumptionModelWrapper(mlflow.pyfunc.PythonModel):
 # COMMAND ----------
 
 wrapped_model = PowerConsumptionModelWrapper(pipeline) # we pass the loaded model to the wrapper
+example_input = X_test.iloc[0:1]  # Select the first row for prediction as example
+example_prediction = wrapped_model.predict(context=None, model_input=example_input)
+print("Example Prediction:", example_prediction)
+
 
 # COMMAND ----------
 
@@ -124,11 +129,22 @@ wrapped_model = PowerConsumptionModelWrapper(pipeline) # we pass the loaded mode
 with mlflow.start_run(tags={"branch": "week2",
                             "git_sha": f"{git_sha}"}) as run:
     
+    signature = infer_signature(model_input=X_train, model_output={'Prediction': example_prediction})
+
+    conda_env = _mlflow_conda_env(
+        additional_conda_deps=None,
+        additional_pip_deps=["code/power_consumption-0.0.1-py3-none-any.whl",
+                             ],
+        additional_conda_channels=None,
+    )
+
     run_id = run.info.run_id
     mlflow.pyfunc.log_model(
         python_model=wrapped_model,
         artifact_path="pyfunc-power-consumption-model",
-        signature=infer_signature(model_input=[], model_output=[])
+        code_paths = ["notebooks/power_consumption-0.0.1-py3-none-any.whl"],
+        signature=signature,
+        conda_env=conda_env
     )
 
 # COMMAND ----------

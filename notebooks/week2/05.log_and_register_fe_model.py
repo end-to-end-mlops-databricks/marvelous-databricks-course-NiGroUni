@@ -1,5 +1,5 @@
 # Databricks notebook source
-# MAGIC %pip install ../power_consumption-0.0.1-py3-none-any.whl
+# MAGIC %pip install /Volumes/main/default/file_exchange/nico/power_consumption-0.0.1-py3-none-any.whl
 
 # COMMAND ----------
 
@@ -50,7 +50,7 @@ mlflow_experiment_name = config.mlflow_experiment_name
 
 # Define table names and function name
 feature_table_name = f"{catalog_name}.{schema_name}.power_features"
-function_name = f"{catalog_name}.{schema_name}.temperature_rounded"
+function_name = f"{catalog_name}.{schema_name}.round_temperature"
 
 
 # COMMAND ----------
@@ -84,21 +84,18 @@ spark.sql(f"INSERT INTO {catalog_name}.{schema_name}.power_features "
 # COMMAND ----------
 # Define a function to calculate the power's age using the current year and YearBuilt
 spark.sql(f"""
-CREATE OR REPLACE FUNCTION {function_name}(Temperature DOUBLE)
+CREATE OR REPLACE FUNCTION {function_name}(temperature DOUBLE)
 RETURNS INT
 LANGUAGE PYTHON AS
 $$
-return round(Temperature)
+return round(temperature)
 $$
 """)
 # COMMAND ----------
 # Load training and test sets
-train_set = spark.table(f"{catalog_name}.{schema_name}.train_set_nico").drop("Temperature", "Humidity", "Wind_Speed")
+train_set = spark.table(f"{catalog_name}.{schema_name}.train_set_nico").drop("Humidity", "Wind_Speed")
 test_set = spark.table(f"{catalog_name}.{schema_name}.test_set_nico").toPandas()
 
-# Cast YearBuilt to int for the function input
-# train_set = train_set.withColumn("RoundedTemp", train_set["RoundedTemp"].cast("int"))
-# train_set = train_set.withColumn("DateTime", train_set["DateTime"].cast("string"))
 # COMMAND ----------
 
 # TODO: This leads to unauthorized error as Maria said
@@ -111,13 +108,13 @@ training_set = fe.create_training_set(
     feature_lookups=[
         FeatureLookup(
             table_name=feature_table_name,
-            feature_names=["Temperature", "Humidity", "Wind_Speed"],
+            feature_names=["Humidity", "Wind_Speed"],
             lookup_key="DateTime",
         ),
         FeatureFunction(
             udf_name=function_name,
             output_name="temperature_rounded",
-            input_bindings={"Temperature": "RoundedTemp"},
+            input_bindings={"temperature": "Temperature"},
         ),
     ],
     # exclude_columns=["bla"]
@@ -127,13 +124,15 @@ training_set = fe.create_training_set(
 # Load feature-engineered DataFrame
 training_df = training_set.load_df().toPandas()
 
-# Split features and target
-X_train = training_df[num_features]
-y_train = training_df[target]
-X_test = test_set[num_features]
-y_test = test_set[target]
+# Calculate temperature_rounded for training and test set
+test_set["temperature_rounded"] = test_set["Temperature"].round()
 
-# Setup preprocessing and model pipeline
+# Split features and target
+X_train = training_df[num_features + ["temperature_rounded"]]
+y_train = training_df[target]
+X_test = test_set[num_features + ["temperature_rounded"]]
+y_test = test_set[target]
+# Setup model pipeline
 pipeline = Pipeline(
     steps=[("regressor", LGBMRegressor(**parameters))]
 )
@@ -176,7 +175,3 @@ mlflow.register_model(
     model_uri=f'runs:/{run_id}/lightgbm-pipeline-model-fe',
     name=f"{catalog_name}.{schema_name}.power_consumptions_model_fe")
     
-
-
-
-# COMMAND ----------
