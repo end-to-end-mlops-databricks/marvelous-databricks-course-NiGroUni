@@ -1,6 +1,9 @@
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import mean_squared_error, r2_score
+import mlflow
+import pandas as pd
+from power_consumption.utils import adjust_predictions
 
 class PriceModel:
     def __init__(self, preprocessor, config):
@@ -30,3 +33,17 @@ class PriceModel:
         feature_importance = self.model.named_steps['regressor'].feature_importances_
         feature_names = self.model.named_steps['preprocessor'].get_feature_names_out()
         return feature_importance, feature_names
+
+
+class PowerConsumptionModelWrapper(mlflow.pyfunc.PythonModel):
+    
+    def __init__(self, model):
+        self.model = model
+        
+    def predict(self, context, model_input):
+        if isinstance(model_input, pd.DataFrame):
+            predictions = self.model.predict(model_input)
+            return predictions
+        else:
+            raise ValueError("Input must be a pandas DataFrame.")
+

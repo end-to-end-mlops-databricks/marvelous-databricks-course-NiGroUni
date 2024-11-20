@@ -17,8 +17,6 @@ from databricks.sdk import WorkspaceClient
 from databricks.sdk.service.serving import (
     EndpointCoreConfigInput,
     ServedEntityInput,
-    TrafficConfig,
-    Route,
 )
 from databricks.sdk.runtime import dbutils
 
@@ -49,7 +47,7 @@ workspace.serving_endpoints.create(
                 entity_name=f"{catalog_name}.{schema_name}.power_consumption_model_pyfunc",
                 scale_to_zero_enabled=True,
                 workload_size="Small",
-                entity_version=6,
+                entity_version=7,
             )
         ],
     # Optional if only 1 entity is served
