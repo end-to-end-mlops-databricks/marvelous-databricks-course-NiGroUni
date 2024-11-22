@@ -30,6 +30,9 @@ targets:
 #     build: python -m build
 #     path: .
 
+include:
+  - bundle_monitoring.yml
+
 variables:
   root_path:
     description: root_path for the target
