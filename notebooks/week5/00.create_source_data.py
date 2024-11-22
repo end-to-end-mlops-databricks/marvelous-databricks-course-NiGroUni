@@ -21,7 +21,7 @@ combined_set = pd.concat([train_set, test_set], ignore_index=True)
 existing_ids = set(id for id in combined_set[config.id_col])
 
 # Define function to create synthetic data without random state
-def create_synthetic_data(df, num_rows=100):
+def create_synthetic_data(df, drift=False, num_rows=100):
     synthetic_data = pd.DataFrame()
     
     for column in df.columns:
@@ -50,6 +50,13 @@ def create_synthetic_data(df, num_rows=100):
             synthetic_data[column] = np.random.choice(df[column], num_rows)
     
     synthetic_data[config.id_col] = df[config.id_col]
+
+    if drift:
+        # Skew the top features to introduce drift
+        top_features = ["Temperature", "Humidity", "Wind_Speed"]  # Select top 2 features
+        for feature in top_features:
+            if feature in synthetic_data.columns:
+                synthetic_data[feature] = synthetic_data[feature] * 1.5
 
     return synthetic_data
 
