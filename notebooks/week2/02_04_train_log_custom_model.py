@@ -107,8 +107,6 @@ class PowerConsumptionModelWrapper(mlflow.pyfunc.PythonModel):
     def predict(self, context, model_input):
         if isinstance(model_input, pd.DataFrame):
             predictions = self.model.predict(model_input)
-            predictions = {"Prediction": adjust_predictions(
-                predictions[0])}
             return predictions
         else:
             raise ValueError("Input must be a pandas DataFrame.")

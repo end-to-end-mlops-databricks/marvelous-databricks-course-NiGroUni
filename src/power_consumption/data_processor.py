@@ -5,6 +5,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
+from pyspark.sql.functions import current_timestamp, to_utc_timestamp
 
 spark = SparkSession.builder.appName("DataProcessor").getOrCreate()
 
@@ -43,9 +44,15 @@ class DataProcessor:
     def save_to_catalog(self, train_set: pd.DataFrame, test_set: pd.DataFrame, spark: SparkSession):
         """Save the train and test sets into Databricks tables."""
 
-        train_set = spark.createDataFrame(train_set)   
+        spark.sql(f"DROP TABLE {self.config.catalog_name}.{self.config.schema_name}.train_set_nico")
+
+        spark.sql(f"DROP TABLE {self.config.catalog_name}.{self.config.schema_name}.test_set_nico")
+
+        train_set = spark.createDataFrame(train_set).withColumn(
+            "update_timestamp_utc", to_utc_timestamp(current_timestamp(), "UTC"))
         
-        test_set = spark.createDataFrame(test_set)
+        test_set = spark.createDataFrame(test_set).withColumn(
+            "update_timestamp_utc", to_utc_timestamp(current_timestamp(), "UTC"))
 
         train_set.write.mode("overwrite").saveAsTable(
             f"{self.config.catalog_name}.{self.config.schema_name}.train_set_nico")
